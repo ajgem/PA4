@@ -30,8 +30,8 @@ void* mymalloc(size_t size){
 }
 
 void myfree(void* ptr){
-
-
+    if(!ptr)
+        return;
 }
 
 void* myrealloc(void* ptr, size_t size){

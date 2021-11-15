@@ -40,7 +40,7 @@ void* myrealloc(void* ptr, size_t size){
     }elseif(ptr != NULL && size == 0){
         myfree(ptr);
         return NULL;
-else(ptr == NULL && size == 0){
+else{
     return NULL;
 }
 }

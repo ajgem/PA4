@@ -35,9 +35,10 @@ void myfree(void* ptr){
 }
 
 void* myrealloc(void* ptr, size_t size){
-    if (ptr == NULL && size != 0){
+    if (ptr == NULL ){
         return mymalloc(size);
-    }elseif(ptr != NULL && size == 0){
+    }
+    if(size == 0){
         myfree(ptr);
         return NULL;
 else{

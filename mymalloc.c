@@ -41,9 +41,12 @@ void* myrealloc(void* ptr, size_t size){
     if(size == 0){
         myfree(ptr);
         return NULL;
-else{
-    return NULL;
-}
+    }
+    void* temp_space = mymalloc(size);
+    memcpy(temp_space, ptr, size);
+    myfree(ptr);
+    ptr = temp_space;
+    return ptr;
 }
 
 void mycleanup(){

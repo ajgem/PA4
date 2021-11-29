@@ -2,14 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "mymalloc.h"
+#define MEM_SIZE 5000
+#define malloc(x) mymalloc(x)
+#define free(x) myfree(x)
 
-static char myblock[MEM_SIZE];
+static char myblock[5000];
 
 /*
 process for malloc:
 	if block is first to be malloced:
 		mem requested > mem available ? err : allocate mem and return pointer to first block after metadata:
+
 	else:
 		get first meta data, check m1 size against m2 address and find how much empty space there is.
 			if the second block and its metadata fits in the empty space, place it there, update next pointers of previous meta data
@@ -19,24 +22,23 @@ process for malloc:
 
 process for free:
 	TBD
+
+
 */
+typedef struct metadata meta;
+struct metadata{
+ char free;
+ int size;
+ meta* next;
+ //0 if used, 1 if free
+}; 
 
-//@MATT INCASE YOU DONT REALIZE, I CHANGED THE MEM_SIZE(IN THE HEADER FILE) TO 25000 FOR MEMGRIND
-
-void* mymalloc(size_t size, char* file, int line){
+void* mymalloc(int size){
 	//on first malloc
 	void* ret;
 	if (myblock[0]=='\0'){
 		meta firstMeta;
-		if(size + sizeof(meta) >= MEM_SIZE)
-		{
-			fprintf(stderr,"ERROR AT %s:%d -- MEM OUT OF BOUNDS\n",file,line);
-			return NULL;
-		}
-		else
-		{
-			firstMeta.size = size;
-		}
+		firstMeta.size = size + sizeof(meta) >= MEM_SIZE ? fprintf(stderr,"ERROR, MEM OUT OF BOUNDS\n") : size;
 		firstMeta.free = '\?';
 		firstMeta.next = NULL;
 		//store first metadata struct in address of first block in array
@@ -60,7 +62,7 @@ void* mymalloc(size_t size, char* file, int line){
 				ptr->next=ptr->next->next;
 			}
 			//if block is already free, no need to create new metadata, just update current one and return pointer. 
-			if ((ptr->free != '\?')&&(ptr->size>=size)){
+			if ((ptr->free != '\?')&&(ptr->size<=size+sizeof(meta))){
 				ptr->size=size;
 				ptr->free = '\?';
 				n = ((long)(ptr) - (long)&myblock[0]) + sizeof(meta);
@@ -72,7 +74,7 @@ void* mymalloc(size_t size, char* file, int line){
 			n = ((long)(ptr) - (long)&myblock[0]) + ptr->size + sizeof(meta);
 
 			// if block requested fits inbetween currently allocated block and next block, make new metadata and return pointer to allocated block
-			if ((void*)(currentMemSpaceEnd)-(void*)(&myblock[n])>=(sizeof(meta)+size)){
+			if ((void*)&myblock[n]-(void*)(currentMemSpaceEnd)>(sizeof(meta)+size)){
 				//insert new pointer 
 				meta newMeta;
 				newMeta.size=size;
@@ -88,32 +90,25 @@ void* mymalloc(size_t size, char* file, int line){
 				return (void*)(&myblock[n+sizeof(meta)]);
 			}
 			else {
-				if (ptr->next != NULL){
+				if (ptr->next){
 					ptr=ptr->next;
 				}
-				else {
-					fprintf(stderr, "ERROR AT %s:%d -- OUT OF MEMORY, FREE ALLOCATED MEMORY\n",file,line);
-					return NULL;
-				}
+				else 
+					fprintf(stderr, "ERROR: OUT OF MEMORY, FREE ALLOCATED MEMORY\n");
 			}
 		} 
 	}
 	return NULL;
 }
 
-void myfree(void* mem, char* file, int line){
+void myfree(void* mem){
 	//print error if user is attempting to free a block of memory that is outside the bounds of the simulated "memory"
 	//unsure if the address of mem will actually be withing the range of 0-5000 or if it will have a legitimate address according to actual memory management
 
-	if(mem == NULL)
-	{
-		fprintf(stderr, "ERROR AT %s:%d -- POINTER IS NULL\n",file,line);
-		return;
-	}
-	if(mem > (void*)&myblock[MEM_SIZE] || mem < (void*)&myblock[0])
+	if((char*)mem > &myblock[MEM_SIZE] || (char*)mem < &myblock[0])
 
 	{
-		fprintf(stderr, "ERROR AT %s:%d -- ATTEMPTING TO FREE MEMORY THAT HAS NOT BEEN ALLOCATED BY MALLOC\n",file,line);
+		fprintf(stderr, "ERROR: ATTEMPTING TO FREE MEMORY THAT HAS NOT BEEN ALLOCATED BY MALLOC\n");
 		return;
 	}
 
@@ -127,30 +122,22 @@ void myfree(void* mem, char* file, int line){
 	}
 	else
 	{
-		fprintf(stderr, "ERROR AT %s:%d -- ATTEMPTING TO FREE MEMORY THAT IS NOT ALLOCATED\n",file,line);
+		fprintf(stderr, "ERROR: ATTEMPTING TO FREE MEMORY THAT IS NOT ALLOCATED\n");
 		return;
 	}
 	
 }
 
-/*
-int main(int argc, char **argv)
-{
-	char* test = (char*)malloc(500);
-	printf("%p\n",test);
-	char* test2 = (char*)malloc(500);
-	printf("%p\n",test2);
-	char* test3 = (char*)malloc(500);
-	printf("%p\n",test3);
-	char* test4 = (char*)malloc(500);
-	printf("%p\n",test4);
-	free(test3);
-	free(test2);
-	char* test5 = (char*)malloc(500);
-	printf("%p\n",test5);
-	char* test6 = (char*)malloc(500);
-	printf("%p\n",test6);	
+int main(int argc, char **argv){
+char* test = (char*)malloc(sizeof(char)*4);
+printf("%p\n",(void*)test);
+char* test2 = (char*)malloc(sizeof(char)*4);
+printf("%p\n",(void*)test2);
+char* test3 = (char*)malloc(sizeof(char)*4);
+printf("%p\n",(void*)test3);
 
-	return 0;
+free(test2);
+char* test4 = (char*)malloc(sizeof(char)*4);
+printf("%p\n",(void*)test4);
+return 0;
 }
-*/

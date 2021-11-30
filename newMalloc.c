@@ -31,7 +31,7 @@ void myinit(int allocAlg){
 		// right now default is best fit 
 	}
 }
-void* mymalloc(int size){
+void* mymalloc(size_t size){
 	//on first malloc findind the amount of space to be used
 	void* storageSpace;
     // checking to see the nul character also due to finding null in the first created space

@@ -8,7 +8,7 @@
 
 
 // for size and to ensure no memory leaks
-#define MEM_SIZE 5000
+#define memoryAllocSize 5000
 // creating the tempBlock the same size of the mem size 
 static char tempBlock[5000];
 
@@ -40,7 +40,7 @@ void* mymalloc(int size){
 		memspot currentAllocated_space;
         // if  the amount of space is too much than allowed throw an error
         // if the size wanting to be allocated is greater than te bounds then throw an error 
-		currentAllocated_space.size = size + sizeof(memspot) >= MEM_SIZE ? fprintf(stderr,"Not in bounds\n") : size;
+		currentAllocated_space.size = size + sizeof(memspot) >= memoryAllocSize ? fprintf(stderr,"Not in bounds\n") : size;
 		currentAllocated_space.free_block = '\?'; //set the freed block to escape format output, in order to format the freed block 
 		currentAllocated_space.nextBlock = NULL; // set equal to Null 
 		//store first memspot struct in address of first space/slot in the array 
@@ -75,11 +75,11 @@ void* mymalloc(int size){
 				}
             // creating a slot for the last spot on the array for allocating space 
             // using t/f statement 
-			memspot* endof_Openspace = temp -> nextBlock != NULL ? temp -> nextBlock : (memspot*)&tempBlock[MEM_SIZE]; // making sure no space of nextblock is empty/NUll
+			memspot* endof_Openspace = temp -> nextBlock != NULL ? temp -> nextBlock : (memspot*)&tempBlock[memoryAllocSize]; // making sure no space of nextblock is empty/NUll
             // a place holder to see where the temp is going to go depeding on size 
 			placement = ((long)(temp) - (long)&tempBlock[0]) + temp -> size + sizeof(memspot);
 
-			// if block requested fits inbetween currently allocated block and next block, make new metadata and return pointer to allocated block
+			// best fit it will place it and create new space
 			if ((void*)&tempBlock[placement] - (void*)(endof_Openspace) > (sizeof(memspot) + size)){
 				//insert new pointer 
 				memspot newAllocated_space; // this will be worked on and hold the sizes
@@ -110,7 +110,7 @@ void* mymalloc(int size){
 void myfree(void* ptr){
 	//throw an error if the memory being used it outside the range that was already defined 
     // also comparing the ptr and making sure it is a certain size 
-	if((char*)ptr > &tempBlock[MEM_SIZE] || (char*)ptr < &tempBlock[0])
+	if((char*)ptr > &tempBlock[memoryAllocSize] || (char*)ptr < &tempBlock[0])
 
 	{   // if not enough spare or exceeding we need to throw an error 
 		fprintf(stderr, "heap overflow\n");

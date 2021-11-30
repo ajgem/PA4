@@ -18,6 +18,17 @@ struct mymalloc_memory{
 }; 
 // The goal of this to check the space and size required to malloc
 //if 
+void myinit(int allocAlg){
+	//created the heap above
+	if(allocAlg = 0){
+		//used first fit
+	}else if(allocAlg = 1){
+		// uses next fit
+	}else if(allocAlg = 2){
+		// uses best fit
+		// right now default is best fit 
+	}
+}
 void* mymalloc(int size){
 	//on first malloc findind the amount of space to be used
 	void* storageSpace;

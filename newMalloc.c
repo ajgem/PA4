@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <ctype.h>
 #include <errno.h>
+#include "mymalloc.h"
+
 
 // for size and to ensure no memory leaks
 #define MEM_SIZE 5000

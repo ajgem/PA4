@@ -147,6 +147,18 @@ void* myrealloc(void* ptr, size_t size){
     return ptr;
 }
 
+void mycleanup(){
+
+}
+
+double utilization(){
+     
+     srand(time(NULL));
+     rand();
+     int random_block_size = rand() % 256 + 1;
+
+}
+
 /*
 int main(int argc, char **argv){
 char* test = (char*)malloc(sizeof(char)*4);
